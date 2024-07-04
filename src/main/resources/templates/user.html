@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <title>Admin panel</title>
+</head>
+<body style="background-color:#f9fafa">
+<!--Header-->
+<div class="container-fluid">
+    <dl class="row p-2 bg-dark text-white">
+        <div class="col-11 text-left">
+            <span class="text-white h4 p-1">
+                    <strong><a id="headUsername"></a></strong>
+                    with roles:
+                    <a id="headRoles"></a>
+                </span>
+        </div>
+        <div class="col-1 text-end">
+            <a class="navbar-brand text-white" href="/logout">Logout</a>
+        </div>
+    </dl>
+</div>
+<div class="container-fluid ">
+    <div class="row" style="background-color: #f8f9fa">
+        <!--Buttons-->
+        <div class="col-12 col-md-2 text-left" style="background-color: #ffffff; min-height: 100vh">
+            <div class="d-flex align-items-start">
+                <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    <button class="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill"
+                            data-bs-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home"
+                            aria-selected="true" style="width: 440%">USER
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!--User info-->
+        <div class="col-12 col-md-10">
+            <h1>User information-page</h1>
+            <br>
+            <div class="tab-content" id="v-pills-tabContent">
+                <h5 class="card-header">About user</h5>
+                <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel"
+                     aria-labelledby="v-pills-home-tab">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">First Name</th>
+                            <th scope="col">Last Name</th>
+                            <th scope="col">Age</th>
+                            <th scope="col">Username</th>
+                            <th scope="col">Role</th>
+                        </tr>
+                        </thead>
+                        <tbody id="oneUserBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/js/user.js"></script>
+</body>
+</html>
