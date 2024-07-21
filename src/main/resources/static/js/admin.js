@@ -194,24 +194,26 @@ function showEditModal(id) {
             'Content-Type': 'application/json',
         },
     });
+
     fetch(request).then(res => res.json()).then(editUser => {
-            document.getElementById('idRed').setAttribute('value', editUser.id);
-            document.getElementById('firstNameRed').setAttribute('value', editUser.firstName);
-            document.getElementById('lastNameRed').setAttribute('value', editUser.lastName);
-            document.getElementById('ageRed').setAttribute('value', editUser.age);
-            document.getElementById('usernameRed').setAttribute('value', editUser.username);
-            document.getElementById('passwordRed').setAttribute('value', editUser.password);
-            if ((editUser.roles.map(role => role.id)) === 1 && ((editUser.roles.map(role => role.id)) === 2)) {
-                document.getElementById('rolesRed1').setAttribute('selected', 'true');
-                document.getElementById('rolesRed2').setAttribute('selected', 'true');
-            } else if ((editUser.roles.map(role => role.id)) === 1) {
-                document.getElementById('rolesRed1').setAttribute('selected', 'true');
-            } else if (editUser.roles.map(role => role.id) === 2) {
-                document.getElementById('rolesRed2').setAttribute('selected', 'true');
-            }
-            editModal.show();
-        }
-    );
+        document.getElementById('idRed').setAttribute('value', editUser.id);
+        document.getElementById('firstNameRed').setAttribute('value', editUser.firstName);
+        document.getElementById('lastNameRed').setAttribute('value', editUser.lastName);
+        document.getElementById('ageRed').setAttribute('value', editUser.age);
+        document.getElementById('usernameRed').setAttribute('value', editUser.username);
+
+        // Убираем установку значения для поля пароля
+        document.getElementById('passwordRed').value = "";
+
+        // Устанавливаем роли
+        const roleIds = editUser.roles.map(role => role.id);
+        document.getElementById('rolesRed1').selected = roleIds.includes(1);
+        document.getElementById('rolesRed2').selected = roleIds.includes(2);
+
+        editModal.show();
+    });
+
+    // Переместите добавление обработчика событий вне функции fetch
     document.getElementById('editUser').addEventListener('submit', submitFormEditUser);
 }
 

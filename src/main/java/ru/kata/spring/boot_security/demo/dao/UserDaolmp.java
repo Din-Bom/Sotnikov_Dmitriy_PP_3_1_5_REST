@@ -1,20 +1,34 @@
 package ru.kata.spring.boot_security.demo.dao;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
+import ru.kata.spring.boot_security.demo.entity.Role;
 import ru.kata.spring.boot_security.demo.entity.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class UserDaolmp implements UserDao {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    private final RoleDao roleDao;
+
+    private final PasswordEncoder passwordEncoder;;
+
+    public UserDaolmp(RoleDao roleDao, @Lazy PasswordEncoder passwordEncoder) {
+        this.roleDao = roleDao;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -30,22 +44,26 @@ public class UserDaolmp implements UserDao {
 
     @Override
     public boolean addUser(User user) {
-        User existingUser = null;
-        try {
-            existingUser = entityManager.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class)
-                    .setParameter("username", user.getUsername())
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            existingUser = null;
+        // Проверяем, существует ли пользователь с данным именем
+        boolean userExists = entityManager.createQuery("SELECT COUNT(u) FROM User u WHERE u.username = :username", Long.class)
+                .setParameter("username", user.getUsername())
+                .getSingleResult() > 0;
+
+        if (userExists) {
+            return false; // Пользователь уже существует
         }
 
-        if (existingUser != null) {
-            return false;
-        } else {
-            entityManager.persist(user);
-            return true;
-        }
+        // Сохраняем или используем существующие роли
+        List<Role> savedRoles = user.getRoles().stream()
+                .map(role -> Optional.ofNullable(roleDao.getRoleByName(role.getRoleName()))
+                        .orElseGet(() -> roleDao.saveRole(role)))
+                .collect(Collectors.toList());
+
+        user.setRoles(savedRoles); // Присваиваем сохраненные роли пользователю
+        entityManager.persist(user); // Сохраняем пользователя
+        return true; // Успешно добавлено
     }
+
 
     @Override
     public void deleteUser(int id) {
@@ -62,7 +80,27 @@ public class UserDaolmp implements UserDao {
         if (existingUser == null) {
             throw new EntityNotFoundException("Пользователь с id=" + user.getId() + " не найден");
         }
-        entityManager.merge(user);
+
+        // Обновляем поля пользователя
+        existingUser.setAge(user.getAge());
+        existingUser.setFirstName(user.getFirstName());
+        existingUser.setLastName(user.getLastName());
+        existingUser.setUsername(user.getUsername());
+
+        // Обновляем роли
+        List<Role> updatedRoles = user.getRoles().stream()
+                .map(role -> Optional.ofNullable(roleDao.getRoleByName(role.getRoleName()))
+                        .orElseGet(() -> roleDao.saveRole(role)))
+                .collect(Collectors.toList());
+
+        existingUser.setRoles(updatedRoles); // Устанавливаем актуальные роли
+
+        // Проверка и обновление пароля
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
+        entityManager.merge(existingUser); // Сохраняем изменения
     }
 
     @Override

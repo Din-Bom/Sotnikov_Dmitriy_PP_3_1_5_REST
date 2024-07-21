@@ -18,7 +18,7 @@ public class UserServicelmp implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServicelmp(UserDao userDao, UserDao userRepository, @Lazy PasswordEncoder passwordEncoder) {
+    public UserServicelmp(UserDao userRepository, @Lazy PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -48,7 +48,6 @@ public class UserServicelmp implements UserService {
 
     @Override
     public void editUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.editUser(user);
     }
 
